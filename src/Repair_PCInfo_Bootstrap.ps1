@@ -12,8 +12,18 @@ $modernScript = Join-Path $ScriptDir "Repair_PCInfo_UserMode.ps1"
 $legacyScript = Join-Path $ScriptDir "Repair_PCInfo_Legacy.ps1"
 
 $useLegacy = $false
-if ($major -lt 6) { $useLegacy = $true }
-elseif ($major -eq 6 -and $minor -le 1) { $useLegacy = $true }
+$forceMode = [string]$env:REPAIR_PCINFO_FORCE_MODE
+
+if ($forceMode -eq "LEGACY") {
+    $useLegacy = $true
+}
+elseif ($forceMode -eq "MODERN") {
+    $useLegacy = $false
+}
+else {
+    if ($major -lt 6) { $useLegacy = $true }
+    elseif ($major -eq 6 -and $minor -le 1) { $useLegacy = $true }
+}
 
 if ($useLegacy) {
     Write-Host "============================================================"
@@ -21,6 +31,9 @@ if ($useLegacy) {
     Write-Host " Legacy compatibility mode"
     Write-Host "============================================================"
     Write-Host ("Detected OS version: {0}.{1}" -f $major, $minor)
+    if (-not [string]::IsNullOrEmpty($env:REPAIR_PCINFO_FORCE_LABEL)) {
+        Write-Host ("Manual OS selection: {0}" -f $env:REPAIR_PCINFO_FORCE_LABEL)
+    }
     Write-Host "Windows XP / Vista / 7 compatible collector will be used."
     Write-Host ""
 
