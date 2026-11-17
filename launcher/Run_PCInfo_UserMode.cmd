@@ -116,6 +116,8 @@ echo Process ended. ExitCode: %RC%
 echo ============================================================
 echo If it failed, send Launcher_LastRun.log and ImageGeneration_Error.txt.
 echo.
+if "%REPAIR_PCINFO_TEST_MODE%"=="1" goto NO_PAUSE
 pause
+:NO_PAUSE
 endlocal
 exit /b %RC%
