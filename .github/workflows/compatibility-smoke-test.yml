@@ -1,0 +1,112 @@
+name: v6.20 compatibility smoke test
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - "launcher/**"
+      - "src/Repair_PCInfo_Bootstrap.ps1"
+      - "src/Repair_PCInfo_Legacy.ps1"
+      - ".github/workflows/compatibility-smoke-test.yml"
+  workflow_dispatch:
+
+jobs:
+  windows-smoke:
+    runs-on: windows-2022
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Parse PowerShell files
+        shell: powershell
+        run: |
+          $files = @(
+            "src/Repair_PCInfo_Bootstrap.ps1",
+            "src/Repair_PCInfo_Legacy.ps1"
+          )
+          $failed = $false
+          foreach ($file in $files) {
+            $tokens = $null
+            $errors = $null
+            [System.Management.Automation.Language.Parser]::ParseFile(
+              (Resolve-Path $file),
+              [ref]$tokens,
+              [ref]$errors
+            ) | Out-Null
+            if ($errors.Count -gt 0) {
+              Write-Host "Parser errors in $file"
+              $errors | Format-List *
+              $failed = $true
+            }
+          }
+          if ($failed) { exit 1 }
+
+      - name: Check Legacy collector for modern-only commands
+        shell: powershell
+        run: |
+          $legacy = Get-Content "src/Repair_PCInfo_Legacy.ps1" -Raw
+          $forbidden = @(
+            "Get-CimInstance",
+            "Get-PhysicalDisk",
+            "Get-StorageReliabilityCounter",
+            "Get-WinEvent",
+            '$PSScriptRoot',
+            "[PSCustomObject]"
+          )
+          $found = @()
+          foreach ($token in $forbidden) {
+            if ($legacy.Contains($token)) { $found += $token }
+          }
+          if ($found.Count -gt 0) {
+            Write-Host "Modern-only tokens found:"
+            $found | ForEach-Object { Write-Host " - $_" }
+            exit 1
+          }
+
+      - name: Auto detect should select Modern on Windows runner
+        shell: powershell
+        run: |
+          Set-Content -Path "auto-input.txt" -Value "Y" -Encoding Ascii
+          cmd /c "set REPAIR_PCINFO_TEST_MODE=1&& call launcher\Run_PCInfo_UserMode.cmd < auto-input.txt > auto-output.txt"
+          Get-Content auto-output.txt
+          $out = Get-Content auto-output.txt -Raw
+          if ($out -notmatch "TEST_SELECTED_MODE=MODERN") { exit 1 }
+
+      - name: Manual Windows XP selection should select Legacy
+        shell: powershell
+        run: |
+          [IO.File]::WriteAllText(
+            (Join-Path $PWD "xp-input.txt"),
+            "N`r`n1`r`n",
+            [Text.Encoding]::ASCII
+          )
+          cmd /c "set REPAIR_PCINFO_TEST_MODE=1&& call launcher\Run_PCInfo_UserMode.cmd < xp-input.txt > xp-output.txt"
+          Get-Content xp-output.txt
+          $out = Get-Content xp-output.txt -Raw
+          if ($out -notmatch "TEST_SELECTED_MODE=LEGACY") { exit 1 }
+          if ($out -notmatch "Manual OS selection: Windows XP") { exit 1 }
+
+      - name: Manual Windows 11 selection should select Modern
+        shell: powershell
+        run: |
+          [IO.File]::WriteAllText(
+            (Join-Path $PWD "win11-input.txt"),
+            "N`r`n6`r`n",
+            [Text.Encoding]::ASCII
+          )
+          cmd /c "set REPAIR_PCINFO_TEST_MODE=1&& call launcher\Run_PCInfo_UserMode.cmd < win11-input.txt > win11-output.txt"
+          Get-Content win11-output.txt
+          $out = Get-Content win11-output.txt -Raw
+          if ($out -notmatch "TEST_SELECTED_MODE=MODERN") { exit 1 }
+          if ($out -notmatch "Manual OS selection: Windows 11") { exit 1 }
+
+      - name: Verify expected CMD labels
+        shell: powershell
+        run: |
+          $cmd = Get-Content "launcher/Run_PCInfo_UserMode.cmd" -Raw
+          foreach ($label in @(":MANUAL_OS",":RUN_AUTO",":RUN_TOOL",":NO_PAUSE")) {
+            if (-not $cmd.Contains($label)) {
+              Write-Host "Missing label: $label"
+              exit 1
+            }
+          }
