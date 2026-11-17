@@ -401,8 +401,8 @@ if($Mode -eq "2"){
     Add-Section "主要ドライバー" { $drv=@(Get-WmiSafe -Class "Win32_PnPSignedDriver");$drv | Where-Object {$_.DeviceName -and $_.DeviceClass -match "DISPLAY|NET|MEDIA|HDC|SCSIAdapter|System|Bluetooth"} | Select-Object DeviceClass,DeviceName,Manufacturer,DriverProviderName,DriverVersion,DriverDate,InfName | Format-Table -AutoSize }
     Add-Section "HotFix" { try{Get-HotFix | Sort-Object InstalledOn -Descending | Select-Object -First 30 | Format-Table -AutoSize}catch{Get-WmiSafe -Class "Win32_QuickFixEngineering" | Select-Object -First 30 | Format-Table -AutoSize} }
     Add-Section "最近のシステムイベント" { try{Get-EventLog -LogName System -After ((Get-Date).AddDays(-3)) -Newest 30 | Select-Object TimeGenerated,EventID,Source,EntryType,Message | Format-Table -Wrap}catch{"取得不可"} }
-    try{Start-Process "msinfo32.exe" -ArgumentList "/report \"$MsInfoLog\"" -Wait -WindowStyle Hidden}catch{}
-    try{Start-Process "dxdiag.exe" -ArgumentList "/t \"$DxDiagLog\"" -Wait -WindowStyle Hidden}catch{}
+    try{$msArgs='/report "{0}"' -f $MsInfoLog;Start-Process "msinfo32.exe" -ArgumentList $msArgs -Wait -WindowStyle Hidden}catch{}
+    try{$dxArgs='/t "{0}"' -f $DxDiagLog;Start-Process "dxdiag.exe" -ArgumentList $dxArgs -Wait -WindowStyle Hidden}catch{}
 }
 
 Step "画像を生成しています..."
