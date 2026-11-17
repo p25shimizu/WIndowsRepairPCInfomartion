@@ -1,4 +1,4 @@
-# Repair PC Information Logger v6.20 - Legacy compatibility mode
+﻿# Repair PC Information Logger v6.20 - Legacy compatibility mode
 # Target: Windows XP / Windows 7 with Windows PowerShell 2.0+
 # Unsupported OS features are skipped instead of aborting.
 
