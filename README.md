@@ -23,7 +23,21 @@ v6.20では、GitHub運用に加えて **Windows XP / Windows 7互換モード**
 | Windows 7 | Legacy | v6.20で追加・要実機検証 |
 | Windows XP | Legacy | PowerShell 2.0導入済み環境のみ・要実機検証 |
 
-起動時にOSバージョンを自動判定し、XP / Vista / 7ではLegacyコレクタ、それ以降ではModernコレクタを使用します。
+起動時にOSを自動判定したうえで、CMD画面に検出結果を表示します。
+
+```text
+Detected OS: Microsoft Windows 7 Professional
+
+Is this correct? [Y/N]:
+```
+
+- `Y`: 自動判定結果を採用
+- `N`: OS選択メニューを表示
+- 手動指定した場合は、その指定を優先してLegacy / Modernを選択
+
+手動選択では Windows XP / Vista / 7 / 8・8.1 / 10 / 11 / Auto detect を選べます。
+
+これにより、古いWindowsや特殊環境でOS判定が想定どおりでない場合でも、人間が補正できます。
 
 ## Windows XPについて
 
@@ -39,10 +53,11 @@ PowerShellが見つからない場合は、ランチャーが要件を表示し�
 2. 最新の `PC診断ツール_vX.XX.zip` をダウンロード
 3. ZIPを展開
 4. `PC診断ツールを起動.cmd` をダブルクリック
-5. OSは自動判定
-6. 案件番号を入力
-7. 通常モード / 詳細モードを選択
-8. デスクトップの診断結果フォルダを確認
+5. CMDに表示されたOS判定結果を確認
+6. 正しければ `Y`、違う場合は `N` を入力してOSを手動選択
+7. 案件番号を入力
+8. 通常モード / 詳細モードを選択
+9. デスクトップの診断結果フォルダを確認
 
 ## Legacyモードで取得する主な情報
 
