@@ -84,7 +84,7 @@ jobs:
           Get-Content xp-output.txt
           $out = Get-Content xp-output.txt -Raw
           if ($out -notmatch "TEST_SELECTED_MODE=LEGACY") { exit 1 }
-          if ($out -notmatch "Manual OS selection: Windows XP") { exit 1 }
+          if ($out -notmatch "TEST_FORCE_LABEL=Windows XP") { exit 1 }
 
       - name: Manual Windows 11 selection should select Modern
         shell: powershell
@@ -98,7 +98,7 @@ jobs:
           Get-Content win11-output.txt
           $out = Get-Content win11-output.txt -Raw
           if ($out -notmatch "TEST_SELECTED_MODE=MODERN") { exit 1 }
-          if ($out -notmatch "Manual OS selection: Windows 11") { exit 1 }
+          if ($out -notmatch "TEST_FORCE_LABEL=Windows 11") { exit 1 }
 
       - name: Verify expected CMD labels
         shell: powershell
