@@ -25,6 +25,17 @@ else {
     elseif ($major -eq 6 -and $minor -le 1) { $useLegacy = $true }
 }
 
+
+if ([string]$env:REPAIR_PCINFO_TEST_MODE -eq "1") {
+    if ($useLegacy) {
+        Write-Host "TEST_SELECTED_MODE=LEGACY"
+    } else {
+        Write-Host "TEST_SELECTED_MODE=MODERN"
+    }
+    Write-Host ("TEST_OS_VERSION={0}.{1}" -f $major, $minor)
+    exit 0
+}
+
 if ($useLegacy) {
     Write-Host "============================================================"
     Write-Host " Repair PC Information Logger v6.20"
