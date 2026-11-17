@@ -28,7 +28,13 @@ echo Start: %date% %time% >> "%RUNLOG%"
 echo ============================================================ >> "%RUNLOG%"
 
 set "DETECTED_OS=Unknown Windows"
-for /f "usebackq delims=" %%A in (`"%PSEXE%" -NoLogo -NoProfile -Command "$o=Get-WmiObject Win32_OperatingSystem; if($o){$o.Caption}else{'Unknown Windows'}" 2^>nul`) do set "DETECTED_OS=%%A"
+set "OSDETECTFILE=%TEMP%\RepairPCInfo_OS_%RANDOM%.txt"
+"%PSEXE%" -NoLogo -NoProfile -Command "$o=Get-WmiObject Win32_OperatingSystem; if($o){[Console]::Write($o.Caption)}" > "%OSDETECTFILE%" 2>nul
+if exist "%OSDETECTFILE%" (
+    set /p "DETECTED_OS="<"%OSDETECTFILE%"
+    del /q "%OSDETECTFILE%" >nul 2>&1
+)
+if "%DETECTED_OS%"=="" set "DETECTED_OS=Unknown Windows"
 
 echo.
 echo ============================================================
