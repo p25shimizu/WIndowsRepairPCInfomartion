@@ -33,6 +33,7 @@ if ([string]$env:REPAIR_PCINFO_TEST_MODE -eq "1") {
         Write-Host "TEST_SELECTED_MODE=MODERN"
     }
     Write-Host ("TEST_OS_VERSION={0}.{1}" -f $major, $minor)
+    Write-Host ("TEST_FORCE_LABEL={0}" -f [string]$env:REPAIR_PCINFO_FORCE_LABEL)
     exit 0
 }
 
