@@ -3,6 +3,7 @@
 
 $ErrorActionPreference = "SilentlyContinue"
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+$RepoRoot = Split-Path -Parent $ScriptDir
 $os = [Environment]::OSVersion.Version
 $major = [int]$os.Major
 $minor = [int]$os.Minor
@@ -27,12 +28,23 @@ if ($useLegacy) {
         Write-Host "Legacy collector was not found: $legacyScript"
         exit 20
     }
+
     & $legacyScript
     exit $LASTEXITCODE
 }
 
 if (-not (Test-Path $modernScript)) {
-    Write-Host "Modern collector was not found: $modernScript"
+    try {
+        $candidates = @(Get-ChildItem -Path $RepoRoot -Filter "Repair_PCInfo_UserMode.ps1" -Recurse -ErrorAction SilentlyContinue)
+        if ($candidates.Count -gt 0) {
+            $modernScript = $candidates[0].FullName
+        }
+    } catch {}
+}
+
+if (-not (Test-Path $modernScript)) {
+    Write-Host "Modern collector was not found."
+    Write-Host "Expected: $ScriptDir\Repair_PCInfo_UserMode.ps1"
     exit 21
 }
 
