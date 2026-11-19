@@ -5,7 +5,7 @@ title Legacy VM Test - v6.20
 set "PSEXE=%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe"
 if not exist "%PSEXE%" (
     echo Windows PowerShell was not found.
-    echo Windows XP requires PowerShell 2.0 before this test.
+    echo This preflight is for Windows 7. On XP use the distribution launcher.
     pause
     exit /b 30
 )

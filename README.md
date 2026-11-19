@@ -1,140 +1,35 @@
 # PC診断ツール / Windows Repair PC Information Logger
 
-> ⚠️ **INTERNAL USE ONLY / 社内利用限定**
+**社内利用限定 / Internal Use Only**
 
-Windows PC の診断・修理・検品・リプレース業務を補助するための社内向け情報取得ツールです。
+現在の配布版は **v6.20 Internal Preview**（2026-11-19）です。安定版の履歴は v6.19 を参照してください。
 
-## バージョン
+## 社員向け配布
 
-- **安定版:** v6.19
-- **開発版:** v6.20 Compatibility Preview
-- **更新日:** 2026-11-19
+会社用Google Driveの社員向け配布先から配布ZIPをダウンロードし、すべて展開して `PC診断ツールを起動.cmd` を開きます。詳しくは [社員向け手順](docs/README_EMPLOYEE.md) を参照してください。
 
-v6.20では、GitHub運用に加えて **Windows XP / Windows 7互換モード** の実装を開始しました。
+| OS | 自動選択するCollector |
+|---|---|
+| Windows XP SP3 | CMD + VBScript / WMI。PowerShell不要 |
+| Windows 7 | 既存Legacy PowerShell Collector |
+| Windows 8 / 8.1 / 10 / 11 | v6.19系Modern PowerShell Collector |
 
-> v6.20 Legacyは仮想環境での検証前です。Windows XP SP3 / Windows 7 SP1 VMで通常・詳細モードの完走を確認後、安定版として扱います。
+自動判定できない場合はOS選択メニューが表示されます。手動で開く場合はランチャーに `/manual` を指定できます。
 
-## 対応OS
+## 開発・配布
 
-| OS | 使用モード | 状態 |
-|---|---|---|
-| Windows 10 / 11 | Modern | 現行機能 |
-| Windows 8 / 8.1 | Modern | 原則Modern |
-| Windows 7 | Legacy | v6.20で追加・要VM検証 |
-| Windows XP | Legacy | PowerShell 2.0導入済み環境のみ・要VM検証 |
+GitHubの `main` をソースコードの正本とします。従来のv6.19スナップショットはリポジトリ内に保持しています。
 
-起動時にOSを自動判定したうえで、CMD画面に検出結果を表示します。
+管理担当者はWindows側の作業PCで、リポジトリのルートから次を実行します。
 
-```text
-Detected OS: Microsoft Windows 7 Professional
-
-Is this correct? [Y/N]:
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\distribution\Build_EmployeePackage.ps1 -OutputDirectory C:\PCInfoBuild
 ```
 
-- `Y`: 自動判定結果を採用
-- `N`: OS選択メニューを表示
-- 手動指定した場合は、その指定を優先してLegacy / Modernを選択
+フォルダーと同名のZIPが生成されます。展開後の起動確認を行い、社内で閲覧権限が管理された会社用Google Driveへ配布ZIPを登録します。
 
-手動選択では Windows XP / Vista / 7 / 8・8.1 / 10 / 11 / Auto detect を選べます。
+- [変更履歴](docs/CHANGELOG.md)
+- [XP・Windows 7のVMテスト](docs/LEGACY_VM_TEST.md)
+- [互換性テスト記録](docs/V620_COMPATIBILITY_TEST.md)
 
-これにより、古いWindowsや特殊環境でOS判定が想定どおりでない場合でも、人間が補正できます。
-
-## Legacy OSのテスト方針
-
-Windows XP / Windows 7の互換性確認は、**仮想環境上で実施**します。
-
-- GitHub Actions: CMD分岐・PowerShell構文・Modern依存コマンド混入を継続検査
-- Windows XP SP3 VM: XP Legacy Collectorの動作確認
-- Windows 7 SP1 VM: Windows 7 Legacy Collectorの動作確認
-- VMイメージ / ISO / VHD / VMDK等はGitHubへ保存しない
-- テスト前にスナップショットを取得し、XP / 7は原則インターネットへ直接接続しない
-
-VM内では `tests\legacy\Run_VM_Test.cmd` を実行してPreflightを行い、その後に本体の通常モード・詳細モードを検証します。
-
-詳細手順: `docs/LEGACY_VM_TEST.md`
-
-## Windows XPについて
-
-Windows XPにはPowerShellが標準搭載されていないため、**Windows PowerShell 2.0 / WMF 2.0が事前導入済み**であることを前提とします。
-
-PowerShellが見つからない場合は、ランチャーが要件を表示して安全に終了します。
-
-## 社員向け：使い方
-
-正式配布版では、GitHubのソースコードではなく **Releasesの配布ZIP** を利用します。
-
-1. GitHubの **Releases** を開く
-2. 最新の `PC診断ツール_vX.XX.zip` をダウンロード
-3. ZIPを展開
-4. `PC診断ツールを起動.cmd` をダブルクリック
-5. CMDに表示されたOS判定結果を確認
-6. 正しければ `Y`、違う場合は `N` を入力してOSを手動選択
-7. 案件番号を入力
-8. 通常モード / 詳細モードを選択
-9. デスクトップの診断結果フォルダを確認
-
-## Legacyモードで取得する主な情報
-
-- メーカー / モデル / S/N / UUID
-- OS / Service Pack
-- CPU
-- RAM / SMBIOSメモリ情報
-- HDD / SSD / ボリューム
-- GPU / ドライバ
-- BIOS / マザーボード
-- PnPエラー
-- Security Center経由のウイルス対策情報
-- Officeインストール情報
-- Windowsライセンス状態
-- バッテリー情報
-- WMI SMART Failure Predict
-- Event Log危険信号
-- `msinfo32` / `dxdiag`（詳細モード）
-- 主要スペック1.png
-- 主要スペック2_SMART.png
-- ライセンス情報.png
-
-## Legacyモードの制約
-
-XP/7には現行Windowsの一部API・機能が存在しません。そのため以下は代替取得または非対応表示になります。
-
-- `Get-PhysicalDisk` / `Get-StorageReliabilityCounter` は使用しない
-- Secure BootはXP/7ではOS非対応として表示
-- TPMはWindows 7で `Win32_Tpm` が利用できる場合のみ取得
-- NVMe / RAID / AHCIの接続方式判定精度はModernより低い
-- `powercfg /batteryreport` はXP/7では生成しない
-- SMARTはコントローラー / USB変換 / OEMドライバにより取得不能な場合あり
-
-**取得不可＝故障ではありません。**
-
-## 通常モード / 詳細モード
-
-### 通常モード
-
-通常の検品・リプレース・一次診断向けです。
-
-### 詳細モード
-
-通常モードに加えて、ドライバ、HotFix、追加イベント情報、`msinfo32`、`dxdiag` 等を取得します。
-
-## セキュリティ
-
-診断結果にはS/N、Windowsプロダクトキー、ネットワーク情報、イベントログ等が含まれる可能性があります。
-
-**実案件の診断結果や案件フォルダをGitHubへコミットしないでください。**
-
-SMTP / API等を追加する場合も、パスワード・APIキー・アクセストークン等をソースコードへ直書きしません。
-
-## GitHub運用
-
-このリポジトリでは、ユーザー指示により当面 **mainへ直接コミット**して更新します。
-
-正式配布時は、動作確認後にタグとGitHub Releaseを作成し、社員にはRelease AssetのZIPを案内します。
-
-## 重要事項
-
-本ツールの取得・判定結果は**参考情報**です。
-
-修理判断、部品発注、顧客説明、保証判断等を確定する場合は、現物、BIOS/UEFI、メーカー公式情報、保守資料等で最終確認してください。
-
-本ツール、本リポジトリ、生成されたログ・画像・レポート等は**社内業務限定**です。
+診断結果は参考情報です。実案件の診断ログ、キー、識別情報、VMイメージをGitHubに追加しないでください。販売資料は現物と照合し、社内診断用の出力と区別してください。

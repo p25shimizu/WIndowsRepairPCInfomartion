@@ -1,5 +1,6 @@
 # Diagnostic output
 No.*-PCLog-*/
+No.*-XP-PCLog-*/
 Legacy_VM_Preflight_*/
 Launcher_LastRun.log
 ImageGeneration_Error.txt

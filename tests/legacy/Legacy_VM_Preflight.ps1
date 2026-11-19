@@ -1,5 +1,5 @@
 ﻿# Legacy VM Preflight Test for Repair PC Information Logger v6.20
-# Target: Windows XP SP3 / Windows 7 SP1 with Windows PowerShell 2.0+
+# Target: Windows 7 SP1 with Windows PowerShell 2.0+
 # PowerShell 2.0 compatible.
 
 $ErrorActionPreference = "SilentlyContinue"
@@ -81,8 +81,8 @@ if ($os) {
 Add-Line "[Required Files]"
 $required = @(
     "launcher\Run_PCInfo_UserMode.cmd",
-    "src\Repair_PCInfo_Bootstrap.ps1",
-    "src\Repair_PCInfo_Legacy.ps1"
+    "src\PCInfo_Launch.cmd",
+    "src\PCInfo_Legacy_Win7.ps1"
 )
 foreach ($rel in $required) {
     $p = Join-Path $RepoRoot $rel

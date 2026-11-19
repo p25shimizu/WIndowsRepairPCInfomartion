@@ -18,7 +18,7 @@ VMイメージ、Windows ISO、プロダクトキー、スナップショット�
 
 | ID | OS | PowerShell | 用途 |
 |---|---|---|---|
-| VM-XP | Windows XP SP3 | 2.0 | XP Legacy互換 |
+| VM-XP | Windows XP SP3 | 未導入 | XP専用 CMD / VBScript |
 | VM-W7 | Windows 7 SP1 | 2.0以上 | Windows 7 Legacy互換 |
 
 両OS対応を正式に表記する場合は、**両方で合格**することを完成条件とする。
@@ -34,10 +34,20 @@ VMイメージ、Windows ISO、プロダクトキー、スナップショット�
 使用するハイパーバイザーは固定しない。
 VirtualBox / VMware / Hyper-V / QEMU等、対象OSを安定して動かせる環境を使用する。
 
-## テスト前準備
+## XP SP3 専用Collectorのテスト
+
+1. PowerShell未導入のXP SP3 VMへ配布ZIPをコピーし展開する。
+2. `PC診断ツールを起動.cmd` を開き、`VM-XP-N` で通常モードを実行する。
+3. 再度開き、`VM-XP-D` で詳細モードを実行する。
+4. 両モードのテキストログでCPU名、RAM総容量、ディスク容量、GPU名、OS名を確認する。
+5. 両モードで販売用HTMLをIE、販売用BMPを画像ビューアーで開く。HTMLのA4縦印刷プレビューと、販売用の出力に内部識別情報が含まれないことを確認する。
+6. 詳細モードの `No.VM-XP-D-エラー・イベント診断.txt` で、PnPに加えて System イベントログの取得結果を確認する。
+7. SMART、バッテリー、OEM等の取得不能が表示されても、出力処理が完了することを確認する。
+
+## Windows 7 のテスト前準備
 
 1. リポジトリの最新版をVMへコピー
-2. XPの場合はWindows PowerShell 2.0が起動することを確認
+2. Windows PowerShellが起動することを確認
 3. `tests\legacy\Run_VM_Test.cmd` を実行
 4. デスクトップに生成された `Legacy_VM_Preflight_YYYYMMDD_HHMMSS` を確認
 
@@ -54,21 +64,20 @@ Preflightは以下を確認する。
 - System.Drawing PNG生成
 - msinfo32 / dxdiag存在確認
 
-## 本体テスト
+## Windows 7 の本体テスト
 
 Preflight後、以下を実施する。
 
-1. `launcher\Run_PCInfo_UserMode.cmd` を起動
-2. CMDのOS自動判定が正しいことを確認
-3. `Y` を入力して自動判定を採用
+1. 配布ZIPを展開し、`PC診断ツールを起動.cmd` を起動
+2. Windows 7向けCollectorが起動することを確認
+3. 初回は社内利用条件を確認
 4. 案件番号はテスト用文字列を使用
-   - XP: `VM-XP`
    - Windows 7: `VM-W7`
 5. 通常モードを実行
 6. 完走と出力ファイルを確認
 7. 再度起動し、詳細モードを実行
 8. 完走と追加出力を確認
-9. CMDで `N` を選択し、手動OS指定でもLegacyへ分岐することを確認
+9. CMDに `/manual` を指定して起動し、手動OS指定でも分岐することを確認
 
 ## 合格基準
 
@@ -76,7 +85,7 @@ Preflight後、以下を実施する。
 
 - CMDが起動する
 - OS名が表示される
-- XP / 7でLegacy Collectorへ分岐する
+- Windows 7でLegacy Collectorへ分岐する
 - 案件番号を入力できる
 - 通常モードが最後まで終了する
 - 詳細モードが最後まで終了する

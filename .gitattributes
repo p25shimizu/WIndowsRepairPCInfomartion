@@ -1,2 +1,6 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+src/*.ps1 text eol=crlf
+src/*.cmd text eol=crlf
+launcher/*.cmd text eol=crlf
