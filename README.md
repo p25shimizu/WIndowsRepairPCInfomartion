@@ -8,11 +8,11 @@ Windows PC の診断・修理・検品・リプレース業務を補助するた
 
 - **安定版:** v6.19
 - **開発版:** v6.20 Compatibility Preview
-- **更新日:** 2026-11-17
+- **更新日:** 2026-11-19
 
 v6.20では、GitHub運用に加えて **Windows XP / Windows 7互換モード** の実装を開始しました。
 
-> v6.20 Legacyは実機検証前です。Windows XP SP3 / Windows 7 SP1で確認後、安定版として扱います。
+> v6.20 Legacyは仮想環境での検証前です。Windows XP SP3 / Windows 7 SP1 VMで通常・詳細モードの完走を確認後、安定版として扱います。
 
 ## 対応OS
 
@@ -20,8 +20,8 @@ v6.20では、GitHub運用に加えて **Windows XP / Windows 7互換モード**
 |---|---|---|
 | Windows 10 / 11 | Modern | 現行機能 |
 | Windows 8 / 8.1 | Modern | 原則Modern |
-| Windows 7 | Legacy | v6.20で追加・要実機検証 |
-| Windows XP | Legacy | PowerShell 2.0導入済み環境のみ・要実機検証 |
+| Windows 7 | Legacy | v6.20で追加・要VM検証 |
+| Windows XP | Legacy | PowerShell 2.0導入済み環境のみ・要VM検証 |
 
 起動時にOSを自動判定したうえで、CMD画面に検出結果を表示します。
 
@@ -38,6 +38,20 @@ Is this correct? [Y/N]:
 手動選択では Windows XP / Vista / 7 / 8・8.1 / 10 / 11 / Auto detect を選べます。
 
 これにより、古いWindowsや特殊環境でOS判定が想定どおりでない場合でも、人間が補正できます。
+
+## Legacy OSのテスト方針
+
+Windows XP / Windows 7の互換性確認は、**仮想環境上で実施**します。
+
+- GitHub Actions: CMD分岐・PowerShell構文・Modern依存コマンド混入を継続検査
+- Windows XP SP3 VM: XP Legacy Collectorの動作確認
+- Windows 7 SP1 VM: Windows 7 Legacy Collectorの動作確認
+- VMイメージ / ISO / VHD / VMDK等はGitHubへ保存しない
+- テスト前にスナップショットを取得し、XP / 7は原則インターネットへ直接接続しない
+
+VM内では `tests\legacy\Run_VM_Test.cmd` を実行してPreflightを行い、その後に本体の通常モード・詳細モードを検証します。
+
+詳細手順: `docs/LEGACY_VM_TEST.md`
 
 ## Windows XPについて
 
