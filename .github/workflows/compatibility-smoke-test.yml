@@ -7,6 +7,7 @@ on:
       - "launcher/**"
       - "src/Repair_PCInfo_Bootstrap.ps1"
       - "src/Repair_PCInfo_Legacy.ps1"
+      - "tests/legacy/**"
       - ".github/workflows/compatibility-smoke-test.yml"
   workflow_dispatch:
 
@@ -22,7 +23,8 @@ jobs:
         run: |
           $files = @(
             "src/Repair_PCInfo_Bootstrap.ps1",
-            "src/Repair_PCInfo_Legacy.ps1"
+            "src/Repair_PCInfo_Legacy.ps1",
+            "tests/legacy/Legacy_VM_Preflight.ps1"
           )
           $failed = $false
           foreach ($file in $files) {
@@ -59,6 +61,29 @@ jobs:
           }
           if ($found.Count -gt 0) {
             Write-Host "Modern-only tokens found:"
+            $found | ForEach-Object { Write-Host " - $_" }
+            exit 1
+          }
+
+      - name: Check VM preflight for PowerShell 2 compatibility
+        shell: powershell
+        run: |
+          $preflight = Get-Content "tests/legacy/Legacy_VM_Preflight.ps1" -Raw
+          $forbidden = @(
+            "Get-CimInstance",
+            "Get-PhysicalDisk",
+            "Get-StorageReliabilityCounter",
+            "Get-WinEvent",
+            '$PSScriptRoot',
+            "[PSCustomObject]",
+            "Invoke-RestMethod"
+          )
+          $found = @()
+          foreach ($token in $forbidden) {
+            if ($preflight.Contains($token)) { $found += $token }
+          }
+          if ($found.Count -gt 0) {
+            Write-Host "PowerShell 2 incompatible tokens found in VM preflight:"
             $found | ForEach-Object { Write-Host " - $_" }
             exit 1
           }
