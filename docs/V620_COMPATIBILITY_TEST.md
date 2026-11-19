@@ -1,6 +1,6 @@
 # v6.20 Compatibility Test Record
 
-更新日: 2026-11-17
+更新日: 2026-11-19
 
 ## 目的
 
@@ -63,25 +63,38 @@ Detected OS: Microsoft Windows Server 2022 Datacenter
 
 ## 未検証
 
-以下はGitHub Actionsでは検証できないため実機確認が必要。
+以下はGitHub Actionsでは検証できないため、Windows XP / Windows 7の仮想環境で確認する。
 
-- Windows XP SP3上でWindows PowerShell 2.0を使用した完走
-- Windows 7 SP1 / PowerShell 2.0での完走
-- XP実機でのWMIクラス取得状態
-- Windows 7実機でのSoftwareLicensingProduct取得
-- XP / 7実機でのSystem.Drawing PNG生成
-- XP / 7の実機SMART取得
-- XP / 7でのSecurity Center AV情報
-- XP / 7でのmsinfo32 / dxdiag詳細モード
-- 各メーカーOEM機固有のWMI差異
+- Windows XP SP3 VM上でWindows PowerShell 2.0を使用した完走
+- Windows 7 SP1 VM / PowerShell 2.0以上での完走
+- XP VMでのWMIクラス取得状態
+- Windows 7 VMでのSoftwareLicensingProduct取得
+- XP / 7 VMでのSystem.Drawing PNG生成
+- XP / 7 VMでのSMART取得
+- XP / 7 VMでのSecurity Center AV情報
+- XP / 7 VMでのmsinfo32 / dxdiag詳細モード
+- VMでは再現できない各メーカーOEM機固有のWMI差異は別途要確認
 
 ## 判定
 
 現時点のv6.20は:
 
-**Compatibility Preview / 実機検証前**
+**Compatibility Preview / VM検証前**
 
 とする。
 
-XP SP3およびWindows 7 SP1で診断完走を確認後、
+XP SP3 VMおよびWindows 7 SP1 VMで診断完走を確認後、
 Legacy互換機能を安定版扱いへ移行する。
+
+
+## 2026-11-19 テスト方針変更
+
+Legacy互換性テストは、実機ではなく仮想環境を標準テスト基盤とする。
+
+追加したテスト資材:
+
+- `tests/legacy/Legacy_VM_Preflight.ps1`
+- `tests/legacy/Run_VM_Test.cmd`
+- `docs/LEGACY_VM_TEST.md`
+
+Windows XP / Windows 7の両対応を正式表記する場合は、両VMで通常モード・詳細モードが完走することを合格条件とする。
