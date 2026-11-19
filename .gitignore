@@ -1,0 +1,34 @@
+# Diagnostic output
+No.*-PCLog-*/
+Legacy_VM_Preflight_*/
+Launcher_LastRun.log
+ImageGeneration_Error.txt
+
+# Virtual machine / disk images
+*.iso
+*.img
+*.vhd
+*.vhdx
+*.vmdk
+*.vdi
+*.qcow
+*.qcow2
+*.ova
+*.ovf
+*.vmem
+*.vmss
+*.vmsn
+*.sav
+
+# VM local directories
+vm/
+.vagrant/
+VirtualBox VMs/
+
+# Credentials / secrets
+*.pfx
+*.p12
+*.key
+*.pem
+.env
+.env.*
